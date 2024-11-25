@@ -606,7 +606,7 @@ export function resolveSpawnOutput(cmd: cp.ChildProcess) {
 			});
 			cmd.on('exit', (code) => {
 				if (resolved) return;
-				if (code == null) return;
+				if (code === null) return;
 				resolve({ code: code, error: null });
 				resolved = true;
 			});
