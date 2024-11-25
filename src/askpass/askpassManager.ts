@@ -29,13 +29,13 @@ export interface AskpassRequest {
 
 export class AskpassManager extends Disposable {
 	private ipcHandlePath: string;
-	private server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>;
+	private server: http.Server;
 	private enabled = true;
 
 	constructor() {
 		super();
 		this.ipcHandlePath = getIPCHandlePath(getNonce());
-		this.server = http.createServer((req: http.IncomingMessage, res: http.ServerResponse) => this.onRequest(req, res));
+		this.server = http.createServer(this.onRequest.bind(this));
 		try {
 			this.server.listen(this.ipcHandlePath);
 			this.server.on('error', () => { });
