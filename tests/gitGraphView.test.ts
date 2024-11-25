@@ -2155,6 +2155,7 @@ describe('GitGraphView', () => {
 				onDidReceiveMessage({
 					command: 'loadCommits',
 					repo: '/path/to/repo',
+					authors: null,
 					refreshId: 2,
 					branches: null,
 					maxCommits: 300,
@@ -2196,6 +2197,7 @@ describe('GitGraphView', () => {
 				onDidReceiveMessage({
 					command: 'loadCommits',
 					repo: '/path/to/repo',
+					authors: null,
 					refreshId: 2,
 					branches: null,
 					maxCommits: 300,
@@ -2237,6 +2239,7 @@ describe('GitGraphView', () => {
 				onDidReceiveMessage({
 					command: 'loadCommits',
 					repo: '/path/to/repo',
+					authors: null,
 					refreshId: 2,
 					branches: null,
 					maxCommits: 300,
@@ -2278,6 +2281,7 @@ describe('GitGraphView', () => {
 				onDidReceiveMessage({
 					command: 'loadCommits',
 					repo: '/path/to/repo',
+					authors: null,
 					refreshId: 2,
 					branches: null,
 					maxCommits: 300,
