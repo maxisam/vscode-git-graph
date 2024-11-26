@@ -36,7 +36,7 @@
 		"workspace"
 	],
 	"activationEvents": [
-		"onCommand:git-graph.view"
+		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
