@@ -28,9 +28,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Get the date on Ubuntu/MacOS
+      - name: Get the date
         id: date_unix
-        if: runner.os != 'Windows'
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
 
       - name: Cache .vscode-test
