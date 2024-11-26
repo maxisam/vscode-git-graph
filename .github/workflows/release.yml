@@ -1,0 +1,62 @@
+name: ♨️ release
+run-name: Deploy ${{ github.ref_name}} @ ${{ github.sha}}
+
+permissions:
+  contents: write
+
+on:
+  # on tag push
+  push:
+    tags:
+      - "v[0-9]+"
+      - "v[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get tag from the event
+        id: get-tag
+        run: |
+          echo "GIT_TAG=${{github.ref_name}}" >> $GITHUB_OUTPUT
+          echo "::notice title=🏷️ Tag::${{ github.ref_name }} @ ${{ github.sha}}"
+
+      - name: Check package.json version is the same as the tag
+        id: check-version
+        run: |
+          if [ "v$(jq -r .version package.json)" != "${{ steps.get-tag.outputs.GIT_TAG }}" ]; then
+            echo "Version in package.json does not match the tag"
+            exit 1
+          fi
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: "npm"
+          node-version: "20.x"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Compile
+        run: npm run compile
+
+      - name: package
+        run: npm run package
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "./*.vsix"
+
+      - name: Github Release
+        run: npx changelogithub
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

@@ -1,4 +1,7 @@
-name: 'Build & Test'
+name: "Build & Test"
+
+permissions:
+  contents: write
 
 on:
   push:
@@ -11,13 +14,91 @@ on:
       - develop
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    outputs:
+      GIT_TAG: ${{ steps.set-tag.outputs.GIT_TAG }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Get the date on Ubuntu/MacOS
+        id: date_unix
+        if: runner.os != 'Windows'
+        run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+
+      - name: Cache .vscode-test
+        uses: actions/cache@v4
+        env:
+          # we use date as part of key because the vscode insiders updated daily
+          CACHE_PREFIX: ${{ runner.os }}-vscode-test-${{ steps.date_unix.outputs.DATE }}
+        with:
+          path: .vscode-test
+          key: ${{ env.CACHE_PREFIX }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ env.CACHE_PREFIX }}
+
+      - name: test
+        run: npm run test
+
+      - name: Set GIT_TAG
+        id: set-tag
+        run: |
+          git fetch --tags origin
+          GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -n "$GIT_TAG" ] && [ "$(git rev-list -n 1 $GIT_TAG 2>/dev/null || echo "")" = "$(git rev-parse HEAD)" ]; then
+            echo "GIT_TAG=${GIT_TAG}" >> $GITHUB_OUTPUT
+          else
+            echo "GIT_TAG=''" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Compile
+        run: npm run compile
+
+      - name: package
+        run: npm run package
+
+      - name: Upload file
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./*.vsix
+
   build:
+    needs: test
+    if: startsWith(needs.test.outputs.GIT_TAG, 'v')
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '12.x'
-    - run: npm install
-    - run: npm run compile
-    - run: npm run test
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Compile
+        run: npm run compile
+
+      - name: package
+        run: npm run package
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "./*.vsix"
+
+      - name: Github Release
+        run: npx changelogithub
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
