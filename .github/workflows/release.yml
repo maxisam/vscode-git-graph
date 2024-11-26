@@ -51,10 +51,18 @@ jobs:
       - name: package
         run: npm run package
 
-      - name: Upload Release Asset
-        uses: softprops/action-gh-release@v2
+      # keep a short retention period for the artifact, as it is only for testing / personal use purposes
+      - name: Upload file
+        uses: actions/upload-artifact@v4
         with:
-          files: "./*.vsix"
+          path: ./*.vsix
+          retention-days: 7
+
+      # disabled for now, since it might breach the license agreement
+      # - name: Upload Release Asset
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     files: "./*.vsix"
 
       - name: Github Release
         run: npx changelogithub
