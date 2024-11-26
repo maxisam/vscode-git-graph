@@ -39,7 +39,7 @@ jobs:
           CACHE_PREFIX: ${{ runner.os }}-vscode-test-${{ steps.date_unix.outputs.DATE }}
         with:
           path: .vscode-test
-          key: ${{ env.CACHE_PREFIX }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ env.CACHE_PREFIX }}-${{ hashFiles('./package-lock.json') }}
           restore-keys: ${{ env.CACHE_PREFIX }}
 
       - name: test
