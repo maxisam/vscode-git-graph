@@ -2489,12 +2489,13 @@ class GitGraphView {
 			for (j = 0; j < path.length; j++) {
 				absPath += '/' + path[j];
 				if (typeof this.gitRepos[absPath] !== 'undefined') {
-					if (typeof cur.contents[path[j]] === 'undefined') {
+					if (!Object.prototype.hasOwnProperty.call(cur.contents, path[j])) {
+
 						cur.contents[path[j]] = { type: 'repo', name: path[j], path: absPath };
 					}
 					break;
 				} else if (j < path.length - 1) {
-					if (typeof cur.contents[path[j]] === 'undefined') {
+					if (!Object.prototype.hasOwnProperty.call(cur.contents, path[j])) {
 						contents = {};
 						cur.contents[path[j]] = { type: 'folder', name: path[j], folderPath: absPath.substring(this.currentRepo.length + 1), contents: contents, open: true, reviewed: true };
 					}
