@@ -38,9 +38,9 @@ jobs:
           # we use date as part of key because the vscode insiders updated daily
           CACHE_PREFIX: ${{ runner.os }}-vscode-test-${{ steps.date_unix.outputs.DATE }}
         with:
-          path: .vscode-test
+          path: node_modules
           key: ${{ env.CACHE_PREFIX }}-${{ hashFiles('./package-lock.json') }}
-          restore-keys: ${{ env.CACHE_PREFIX }}
+          restore-keys: ${{ env.CACHE_PREFIX }}-${{ hashFiles('./package-lock.json') }}
 
       - name: test
         run: npm run test
